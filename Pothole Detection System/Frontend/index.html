@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Pothole Detection System</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="header">
+
+        <div class="logo">
+            🚧
+        </div>
+
+        <div>
+
+            <h1>Pothole Detection System</h1>
+
+            <p>AI-powered road pothole detection</p>
+
+        </div>
+
+    </header>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main class="container">
+
+
+        <!-- ================= INTRO ================= -->
+
+        <section class="intro">
+
+            <h2>Detect Potholes Using AI</h2>
+
+            <p>
+                Capture or upload a road image or video and our
+                YOLOv8 model will detect potholes automatically.
+            </p>
+
+        </section>
+
+
+        <!-- ================= UPLOAD CARD ================= -->
+
+        <section class="card">
+
+            <h2>📷 Upload Road Image / Video</h2>
+
+            <p class="small-text">
+
+                Take a photo using your camera or choose an
+                image or video from your device.
+
+            </p>
+
+
+            <!-- ================= BUTTONS ================= -->
+
+            <div class="camera-buttons">
+
+                <!-- CAMERA -->
+
+                <button
+                    type="button"
+                    id="cameraButton"
+                    class="camera-button"
+                >
+                    📷 Open Camera
+                </button>
+
+
+                <!-- IMAGE -->
+
+                <label
+                    for="imageInput"
+                    class="camera-button"
+                >
+                    📁 Upload Image
+                </label>
+
+
+                <!-- VIDEO -->
+
+                <label
+                    for="videoInput"
+                    class="camera-button"
+                >
+                    🎥 Upload Video
+                </label>
+
+            </div>
+
+
+            <!-- ================= FILE INPUTS ================= -->
+
+            <input
+                type="file"
+                id="imageInput"
+                accept="image/*"
+                capture="environment"
+                hidden
+            >
+
+            <input
+                type="file"
+                id="videoInput"
+                accept="video/*"
+                hidden
+            >
+
+
+            <!-- ================= CAMERA ================= -->
+
+            <div
+                id="cameraContainer"
+                class="camera-container"
+                style="display: none;"
+            >
+
+                <video
+                    id="cameraVideo"
+                    autoplay
+                    playsinline
+                ></video>
+
+
+                <div class="camera-controls">
+
+                    <button
+                        type="button"
+                        id="captureButton"
+                        class="capture-button"
+                    >
+                        📸 Capture Photo
+                    </button>
+
+
+                    <button
+                        type="button"
+                        id="closeCameraButton"
+                        class="close-camera-button"
+                    >
+                        ❌ Close Camera
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- ================= CAMERA CANVAS ================= -->
+
+            <canvas
+                id="cameraCanvas"
+                style="display: none;"
+            ></canvas>
+
+
+            <!-- ================= IMAGE PREVIEW ================= -->
+
+            <div
+                class="preview-container"
+                id="previewContainer"
+            >
+
+                <p id="previewText">
+                    No image or video selected
+                </p>
+
+
+                <img
+                    id="previewImage"
+                    src=""
+                    alt="Selected road image"
+                >
+
+            </div>
+
+
+            <!-- ================= IMAGE DETECT ================= -->
+
+            <button
+                type="button"
+                id="detectButton"
+                class="detect-button"
+                disabled
+            >
+                🔍 Detect Pothole
+            </button>
+
+
+            <!-- ================= VIDEO DETECT ================= -->
+
+            <button
+                type="button"
+                id="detectVideoButton"
+                class="detect-button"
+                disabled
+            >
+                🎥 Detect Video
+            </button>
+
+        </section>
+
+
+        <!-- ================= LOADING ================= -->
+
+        <div
+            id="loading"
+            class="loading"
+        >
+
+            <div class="spinner"></div>
+
+            <p id="loadingText">
+                AI is analyzing...
+            </p>
+
+        </div>
+
+
+        <!-- ================= IMAGE RESULT ================= -->
+
+        <section
+            class="card result-card"
+            id="resultCard"
+        >
+
+            <h2>🎯 Image Detection Result</h2>
+
+
+            <div class="result-image-container">
+
+                <img
+                    id="resultImage"
+                    src=""
+                    alt="YOLOv8 pothole detection result"
+                >
+
+            </div>
+
+
+            <div
+                id="resultInfo"
+                class="result-info"
+            >
+            </div>
+
+        </section>
+
+
+        <!-- ================= VIDEO RESULT ================= -->
+
+        <section
+            class="card result-card"
+            id="videoResultCard"
+        >
+
+            <h2>🎥 Video Detection Result</h2>
+
+
+            <div class="result-image-container">
+
+                <video
+                    id="resultVideo"
+                    controls
+                    style="
+                        display: none;
+                        width: 100%;
+                        max-height: 650px;
+                    "
+                >
+                </video>
+
+            </div>
+
+
+            <div
+                id="videoResultInfo"
+                class="result-info"
+            >
+            </div>
+
+        </section>
+
+
+        <!-- ================= ERROR ================= -->
+
+        <div
+            id="errorMessage"
+            class="error-message"
+            role="alert"
+        >
+        </div>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <p>
+            Pothole Detection System | YOLOv8 + Flask
+        </p>
+
+    </footer>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
