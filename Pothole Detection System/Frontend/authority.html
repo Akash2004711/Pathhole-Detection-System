@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Authority Dashboard | Pothole Detection System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dash-body authority">
+
+    <nav class="topnav navy">
+        <div class="brand">🏛️ <span>Authority Console</span></div>
+        <div class="nav-links">
+            <button class="nav-btn active" data-view="overview">Overview</button>
+            <button class="nav-btn" data-view="reports">All Reports</button>
+            <button class="nav-btn" data-view="map">Map</button>
+            <button class="nav-btn" data-view="analytics">Analytics</button>
+            <button class="nav-btn" data-view="teams">Teams</button>
+            <button class="nav-btn" data-view="profile">Profile</button>
+            <button id="logoutBtn" class="nav-btn logout">Logout</button>
+        </div>
+    </nav>
+
+    <main class="dash-main">
+
+        <!-- OVERVIEW -->
+        <section id="view-overview" class="view">
+            <h2>Authority overview</h2>
+            <div class="stat-grid" id="govStats"></div>
+            <p id="govOverviewNote" class="small-text"></p>
+        </section>
+
+        <!-- ALL REPORTS -->
+        <section id="view-reports" class="view" style="display:none">
+            <div class="card">
+                <h2>📋 Report management</h2>
+                <div class="toolbar">
+                    <input type="text" id="govSearch" placeholder="Search address / ID...">
+                    <select id="govStatusFilter"><option value="">All statuses</option></select>
+                    <select id="govPriorityFilter">
+                        <option value="">All priorities</option>
+                        <option value="critical">Critical</option><option value="high">High</option>
+                        <option value="medium">Medium</option><option value="low">Low</option>
+                    </select>
+                    <button id="govReload" class="camera-button">Apply</button>
+                </div>
+                <div class="table-wrap">
+                    <table class="data-table" id="govTable">
+                        <thead><tr>
+                            <th>ID</th><th>Date</th><th>Location</th><th>Potholes</th>
+                            <th>Conf.</th><th>Status</th><th>Priority</th><th>Team</th><th>Actions</th>
+                        </tr></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="pager"><button id="prevPage">‹ Prev</button><span id="pageInfo"></span><button id="nextPage">Next ›</button></div>
+            </div>
+        </section>
+
+        <!-- MAP -->
+        <section id="view-map" class="view" style="display:none">
+            <div class="card">
+                <h2>🗺️ Reports map</h2>
+                <div class="toolbar">
+                    <select id="mapStatusFilter"><option value="">All statuses</option></select>
+                    <select id="mapPriorityFilter">
+                        <option value="">All priorities</option>
+                        <option value="critical">Critical</option><option value="high">High</option>
+                        <option value="medium">Medium</option><option value="low">Low</option>
+                    </select>
+                </div>
+                <div id="govMap" class="map tall"></div>
+            </div>
+        </section>
+
+        <!-- ANALYTICS -->
+        <section id="view-analytics" class="view" style="display:none">
+            <div class="card">
+                <h2>📊 Analytics</h2>
+                <div id="analyticsBody"></div>
+            </div>
+        </section>
+
+        <!-- TEAMS -->
+        <section id="view-teams" class="view" style="display:none">
+            <div class="card">
+                <h2>👷 Maintenance teams</h2>
+                <form id="teamForm" class="row-form">
+                    <input type="text" id="teamName" placeholder="Team name" required>
+                    <input type="email" id="teamEmail" placeholder="Contact email">
+                    <input type="text" id="teamJurisdiction" placeholder="Jurisdiction / area">
+                    <button type="submit" class="detect-button">Add team</button>
+                </form>
+                <div id="teamList" class="list"></div>
+            </div>
+        </section>
+
+        <!-- PROFILE -->
+        <section id="view-profile" class="view" style="display:none">
+            <div class="card">
+                <h2>👤 Authority profile</h2>
+                <p>Name: <strong id="govName"></strong></p>
+                <p>Email: <strong id="govEmail"></strong></p>
+                <p>Role: <strong id="govRole"></strong></p>
+                <p class="small-text">Account and role management is handled by an administrator. Use Logout to sign out.</p>
+            </div>
+        </section>
+
+        <!-- REPORT DETAIL MODAL -->
+        <div id="detailModal" class="modal" style="display:none">
+            <div class="modal-content wide">
+                <button class="modal-close" id="closeDetail">×</button>
+                <div id="detailBody"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/authority-app.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin()    { return isSignedIn() && request.auth.token.role == 'government_authority'; }
+    function ownsUserDoc(uid) { return isSignedIn() && request.auth.uid == uid; }
+
+    // ---- Users ----
+    // A user may read/update only their own profile and may NOT self-escalate
+    // the role field. Authorities and the Admin SDK (which bypasses rules) may
+    // read/assign roles.
+    match /users/{uid} {
+      allow get: if ownsUserDoc(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if ownsUserDoc(uid)
+        && request.resource.data.role == 'user'
+        && request.resource.data.uid == uid;
+      allow update: if isAdmin()
+        || (ownsUserDoc(uid)
+            && request.resource.data.role == resource.data.role
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['display_name', 'updated_at', 'contact']));
+      allow delete: if false;
+    }
+
+    // ---- Reports ----
+    // Users create their own reports and read only their own. Authority reads
+    // all. Status/priority/team fields are written ONLY by the backend Admin
+    // SDK (bypasses these rules), so clients cannot set them directly.
+    match /reports/{reportId} {
+      allow get:  if isSignedIn() && (resource.data.reporter_uid == request.auth.uid || isAdmin());
+      allow list: if isAdmin();
+      allow create: if isSignedIn()
+        && request.resource.data.reporter_uid == request.auth.uid
+        && request.resource.data.status == 'submitted'
+        && request.resource.data.get('priority', null) == null
+        && request.resource.data.get('assigned_team_id', null) == null;
+      // Clients may never mutate report workflow fields directly.
+      allow update, delete: if false;
+    }
+
+    // ---- Report history (audit): append-only for backend/Admin only ----
+    match /reportHistory/{historyId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ---- Maintenance teams: authority-managed ----
+    match /maintenanceTeams/{teamId} {
+      allow read, write: if isAdmin();
+    }
+
+    // ---- Notification logs: backend/Admin only ----
+    match /notificationLogs/{logId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

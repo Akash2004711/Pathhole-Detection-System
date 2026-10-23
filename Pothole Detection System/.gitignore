@@ -1,8 +1,21 @@
 # Python
 venv/
+.venv/
 __pycache__/
 *.pyc
+.pytest_cache/
+
+# Environment & secrets — NEVER commit these
 .env
+*.env
+!backend/tests/test.env
+service-account*.json
+firebase-sa.json
+credentials.json
+secrets/
+
+# Node
+node_modules/
 
 # Dataset
 Pothole detection.v1i.yolov8/
@@ -10,5 +23,21 @@ Pothole detection.v1i.yolov8/
 # Model training outputs
 runs/
 
-# Large model files
+# Large model files (supply trained weights via YOLO_MODEL_PATH, see README)
 *.pt
+# Hugging Face / model download caches
+.cache/
+models/.cache/
+
+# Runtime logs
+*.log
+
+# Local temp uploads / user media
+backend/tmp/
+storage/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

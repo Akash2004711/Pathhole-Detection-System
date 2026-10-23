@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard | Pothole Detection System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="dash-body">
+
+    <nav class="topnav">
+        <div class="brand">🚧 <span>Pothole Detection</span></div>
+        <div class="nav-links">
+            <button class="nav-btn active" data-view="overview">Overview</button>
+            <button class="nav-btn" data-view="detect">Detect</button>
+            <button class="nav-btn" data-view="submit">Submit Report</button>
+            <button class="nav-btn" data-view="reports">My Reports</button>
+            <button class="nav-btn" data-view="nearby">Nearby</button>
+            <button class="nav-btn" data-view="profile">Profile</button>
+            <button id="logoutBtn" class="nav-btn logout">Logout</button>
+        </div>
+    </nav>
+
+    <main class="dash-main">
+
+        <!-- ============ OVERVIEW ============ -->
+        <section id="view-overview" class="view">
+            <h2>Welcome, <span id="userName">there</span> 👋</h2>
+            <div class="stat-grid" id="userStats"></div>
+            <div class="card">
+                <h3>Recent activity</h3>
+                <div id="recentActivity" class="list"></div>
+            </div>
+            <div class="quick-actions">
+                <button class="camera-button" data-goto="detect">🔍 Detect a pothole</button>
+                <button class="detect-button" data-goto="submit">📝 Submit a report</button>
+            </div>
+        </section>
+
+        <!-- ============ DETECT ============ -->
+        <section id="view-detect" class="view" style="display:none">
+            <div class="card">
+                <h2>📷 Detect Potholes</h2>
+                <p class="small-text">Upload an image, upload a video, or use your camera. The YOLO model runs on the backend and returns real detections.</p>
+
+                <div class="camera-buttons">
+                    <button type="button" id="cameraButton" class="camera-button">📷 Open Camera (live detect)</button>
+                    <label for="imageInput" class="camera-button">📁 Upload Image</label>
+                    <label for="videoInput" class="camera-button">🎥 Upload Video</label>
+                </div>
+
+                <input type="file" id="imageInput" accept="image/*" hidden>
+                <input type="file" id="videoInput" accept="video/*" hidden>
+
+                <div id="cameraContainer" class="camera-container" style="display:none">
+                    <div style="position:relative; display:block; width:100%;">
+                        <video id="cameraVideo" autoplay playsinline muted
+                               style="width:100%; display:block; border-radius:10px; background:#000;"></video>
+                        <canvas id="liveOverlay"
+                                style="position:absolute; inset:0; width:100%; height:100%; pointer-events:none;"></canvas>
+                        <div id="liveHud" style="display:none; position:absolute; top:10px; left:10px;
+                             background:rgba(0,0,0,.65); color:#fff; padding:6px 12px; border-radius:8px;
+                             font-size:14px; font-weight:600;">
+                            🚧 <span id="liveCount">0</span> pothole(s) · <span id="liveConf">—</span> · <span id="liveLatency">—</span>
+                        </div>
+                    </div>
+                    <div class="camera-controls">
+                        <button type="button" id="captureButton" class="capture-button">📸 Capture Photo</button>
+                        <button type="button" id="liveDetectButton" class="detect-button">🔴 Start Live Detect</button>
+                        <button type="button" id="stopLiveButton" class="close-camera-button" style="display:none">⏹ Stop Live</button>
+                        <button type="button" id="closeCameraButton" class="close-camera-button">❌ Close Camera</button>
+                    </div>
+                    <label style="display:block; margin-top:10px;">
+                        <input type="checkbox" id="autoReportToggle" checked>
+                        Auto-report new potholes (de-duplicated: only when a new one appears; updates the dashboard live)
+                    </label>
+                    <p id="liveStatus" class="small-text muted">
+                        Opening the camera starts live detection automatically — no clicks needed.</p>
+                </div>
+                <canvas id="cameraCanvas" style="display:none"></canvas>
+
+                <div class="preview-container" id="previewContainer">
+                    <p id="previewText">No image or video selected</p>
+                    <img id="previewImage" src="" alt="Selected road image">
+                </div>
+
+                <button type="button" id="detectButton" class="detect-button" disabled>🔍 Detect Pothole</button>
+                <button type="button" id="detectVideoButton" class="detect-button" disabled>🎥 Detect Video</button>
+            </div>
+
+            <div id="loading" class="loading"><div class="spinner"></div><p id="loadingText">AI is analyzing...</p></div>
+            <div id="detectError" class="error-message"></div>
+
+            <section class="card result-card" id="resultCard">
+                <h2>🎯 Detection Result</h2>
+                <div class="result-image-container"><img id="resultImage" src="" alt="detection result"></div>
+                <div id="resultInfo" class="result-info"></div>
+                <button type="button" id="useForReportBtn" class="detect-button" style="display:none">✅ Use this for a report</button>
+            </section>
+        </section>
+
+        <!-- ============ SUBMIT REPORT ============ -->
+        <section id="view-submit" class="view" style="display:none">
+            <div class="card">
+                <h2>📝 Submit a Report</h2>
+                <p id="reportDetectSummary" class="small-text">Run a detection first, or fill the details below. Detection results are attached automatically when available.</p>
+                <form id="reportForm">
+                    <label>GPS coordinates</label>
+                    <div class="row">
+                        <input type="number" id="lat" step="any" placeholder="Latitude" required>
+                        <input type="number" id="lng" step="any" placeholder="Longitude" required>
+                    </div>
+                    <button type="button" id="useMyLocation" class="link-btn">📍 Use my current location</button>
+
+                    <label>Address or landmark (optional)</label>
+                    <input type="text" id="address" maxlength="300" placeholder="e.g. MG Road near metro station">
+
+                    <label>Adjust location on the map (drag the marker)</label>
+                    <div id="reportMap" class="map"></div>
+
+                    <label>Description (optional)</label>
+                    <textarea id="description" maxlength="2000" rows="3"></textarea>
+
+                    <label>Category (optional)</label>
+                    <select id="category">
+                        <option value="">— Select —</option>
+                        <option value="residential">Residential road</option>
+                        <option value="highway">Highway</option>
+                        <option value="urban">Urban street</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <button type="submit" class="detect-button full">Submit report</button>
+                </form>
+                <div id="reportMessage" class="error-message"></div>
+            </div>
+        </section>
+
+        <!-- ============ MY REPORTS ============ -->
+        <section id="view-reports" class="view" style="display:none">
+            <div class="card">
+                <h2>📋 My Reports</h2>
+                <div class="toolbar">
+                    <input type="text" id="reportSearch" placeholder="Search by address or ID...">
+                    <select id="reportStatusFilter">
+                        <option value="">All statuses</option>
+                    </select>
+                </div>
+                <div id="myReports" class="list"></div>
+            </div>
+        </section>
+
+        <!-- ============ NEARBY ============ -->
+        <section id="view-nearby" class="view" style="display:none">
+            <div class="card">
+                <h2>🗺️ Nearby Potholes</h2>
+                <div class="toolbar">
+                    <button type="button" id="nearbyLocate" class="camera-button">📍 Center on my location</button>
+                    <label class="checkbox"><input type="checkbox" id="nearbyWithin5" checked> Within 5 km</label>
+                </div>
+                <div id="nearbyMap" class="map tall"></div>
+                <p id="nearbyNote" class="small-text"></p>
+            </div>
+        </section>
+
+        <!-- ============ PROFILE ============ -->
+        <section id="view-profile" class="view" style="display:none">
+            <div class="card">
+                <h2>👤 Profile</h2>
+                <form id="profileForm">
+                    <label>Display name</label>
+                    <input type="text" id="profileName">
+                    <label>Email</label>
+                    <input type="email" id="profileEmail" disabled>
+                    <button type="submit" class="detect-button">Save name</button>
+                </form>
+                <div id="profileMessage" class="error-message"></div>
+                <p class="small-text">Your role: <strong id="profileRole"></strong>. Role changes must be made by an administrator.</p>
+            </div>
+        </section>
+
+        <!-- ============ REPORT DETAIL MODAL ============ -->
+        <div id="detailModal" class="modal" style="display:none">
+            <div class="modal-content">
+                <button class="modal-close" id="closeDetail">×</button>
+                <div id="detailBody"></div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/user-app.js"></script>
+
+</body>
+
+</html>

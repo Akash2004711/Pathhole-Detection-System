@@ -1,0 +1,27 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { return isSignedIn() && request.auth.token.role == 'government_authority'; }
+
+    // Report media is written by the backend Admin SDK (bypasses these rules)
+    // and read only by the owning reporter or an authority via signed URLs.
+    // Clients cannot read or write these paths directly, keeping private
+    // report media non-public.
+    match /reports/{reportId}/{allPaths=**} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // Per-user detection uploads: owner read/write only.
+    match /detection_uploads/{uid}/{allPaths=**} {
+      allow read, write: if isSignedIn() && request.auth.uid == uid;
+    }
+
+    // Everything else is denied.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

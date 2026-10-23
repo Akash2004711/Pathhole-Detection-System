@@ -2,328 +2,178 @@
 <html lang="en">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Pothole Detection System</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pothole Detection System | AI-Powered Road Reporting</title>
     <link rel="stylesheet" href="style.css">
-
 </head>
 
-<body>
-
-    <!-- ================= HEADER ================= -->
+<body class="auth-body">
 
     <header class="header">
-
-        <div class="logo">
-            🚧
-        </div>
-
+        <div class="logo">🚧</div>
         <div>
-
             <h1>Pothole Detection System</h1>
-
-            <p>AI-powered road pothole detection</p>
-
+            <p>AI-powered pothole detection, GPS mapping &amp; civic reporting</p>
         </div>
-
     </header>
 
-
-    <!-- ================= MAIN ================= -->
-
-    <main class="container">
-
-
-        <!-- ================= INTRO ================= -->
+    <main class="container auth-container">
 
         <section class="intro">
-
-            <h2>Detect Potholes Using AI</h2>
-
+            <h2>Report road potholes in minutes</h2>
             <p>
-                Capture or upload a road image or video and our
-                YOLOv8 model will detect potholes automatically.
+                Sign in to detect potholes with our YOLO model, attach a GPS
+                location, and submit a report that is routed to the responsible
+                government authority for verification and repair.
             </p>
-
         </section>
 
-
-        <!-- ================= UPLOAD CARD ================= -->
-
-        <section class="card">
-
-            <h2>📷 Upload Road Image / Video</h2>
-
-            <p class="small-text">
-
-                Take a photo using your camera or choose an
-                image or video from your device.
-
-            </p>
-
-
-            <!-- ================= BUTTONS ================= -->
-
-            <div class="camera-buttons">
-
-                <!-- CAMERA -->
-
-                <button
-                    type="button"
-                    id="cameraButton"
-                    class="camera-button"
-                >
-                    📷 Open Camera
-                </button>
-
-
-                <!-- IMAGE -->
-
-                <label
-                    for="imageInput"
-                    class="camera-button"
-                >
-                    📁 Upload Image
-                </label>
-
-
-                <!-- VIDEO -->
-
-                <label
-                    for="videoInput"
-                    class="camera-button"
-                >
-                    🎥 Upload Video
-                </label>
-
+        <section class="card auth-card">
+            <div class="tabs">
+                <button type="button" id="tabLogin" class="tab active">Sign in</button>
+                <button type="button" id="tabRegister" class="tab">Register</button>
             </div>
 
+            <!-- LOGIN -->
+            <form id="loginForm" class="auth-form">
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" autocomplete="email" required>
 
-            <!-- ================= FILE INPUTS ================= -->
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" autocomplete="current-password" required>
 
-            <input
-                type="file"
-                id="imageInput"
-                accept="image/*"
-                capture="environment"
-                hidden
-            >
+                <button type="submit" class="detect-button full">Sign in</button>
+                <button type="button" id="forgotBtn" class="link-btn">Forgot password?</button>
+            </form>
 
-            <input
-                type="file"
-                id="videoInput"
-                accept="video/*"
-                hidden
-            >
+            <!-- REGISTER -->
+            <form id="registerForm" class="auth-form" style="display:none">
+                <label for="regName">Full name</label>
+                <input type="text" id="regName" autocomplete="name" required>
 
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" autocomplete="email" required>
 
-            <!-- ================= CAMERA ================= -->
+                <label for="regPassword">Password (min 6 characters)</label>
+                <input type="password" id="regPassword" autocomplete="new-password" minlength="6" required>
 
-            <div
-                id="cameraContainer"
-                class="camera-container"
-                style="display: none;"
-            >
-
-                <video
-                    id="cameraVideo"
-                    autoplay
-                    playsinline
-                ></video>
-
-
-                <div class="camera-controls">
-
-                    <button
-                        type="button"
-                        id="captureButton"
-                        class="capture-button"
-                    >
-                        📸 Capture Photo
-                    </button>
-
-
-                    <button
-                        type="button"
-                        id="closeCameraButton"
-                        class="close-camera-button"
-                    >
-                        ❌ Close Camera
-                    </button>
-
+                <label>Account type</label>
+                <div class="radio-row">
+                    <label class="radio"><input type="radio" name="regRole" value="user" checked> Citizen</label>
+                    <label class="radio"><input type="radio" name="regRole" value="government_authority"> Government Authority</label>
                 </div>
 
-            </div>
+                <div id="authorityCodeField" style="display:none">
+                    <label for="regCode">Authority signup code</label>
+                    <input type="text" id="regCode" autocomplete="off" placeholder="Enter the authority code">
+                    <p class="small-text muted">Required to register as a government authority.</p>
+                </div>
 
+                <button type="submit" class="detect-button full">Create account</button>
+            </form>
 
-            <!-- ================= CAMERA CANVAS ================= -->
-
-            <canvas
-                id="cameraCanvas"
-                style="display: none;"
-            ></canvas>
-
-
-            <!-- ================= IMAGE PREVIEW ================= -->
-
-            <div
-                class="preview-container"
-                id="previewContainer"
-            >
-
-                <p id="previewText">
-                    No image or video selected
-                </p>
-
-
-                <img
-                    id="previewImage"
-                    src=""
-                    alt="Selected road image"
-                >
-
-            </div>
-
-
-            <!-- ================= IMAGE DETECT ================= -->
-
-            <button
-                type="button"
-                id="detectButton"
-                class="detect-button"
-                disabled
-            >
-                🔍 Detect Pothole
-            </button>
-
-
-            <!-- ================= VIDEO DETECT ================= -->
-
-            <button
-                type="button"
-                id="detectVideoButton"
-                class="detect-button"
-                disabled
-            >
-                🎥 Detect Video
-            </button>
-
+            <div id="authMessage" class="error-message"></div>
         </section>
 
-
-        <!-- ================= LOADING ================= -->
-
-        <div
-            id="loading"
-            class="loading"
-        >
-
-            <div class="spinner"></div>
-
-            <p id="loadingText">
-                AI is analyzing...
-            </p>
-
-        </div>
-
-
-        <!-- ================= IMAGE RESULT ================= -->
-
-        <section
-            class="card result-card"
-            id="resultCard"
-        >
-
-            <h2>🎯 Image Detection Result</h2>
-
-
-            <div class="result-image-container">
-
-                <img
-                    id="resultImage"
-                    src=""
-                    alt="YOLOv8 pothole detection result"
-                >
-
-            </div>
-
-
-            <div
-                id="resultInfo"
-                class="result-info"
-            >
-            </div>
-
-        </section>
-
-
-        <!-- ================= VIDEO RESULT ================= -->
-
-        <section
-            class="card result-card"
-            id="videoResultCard"
-        >
-
-            <h2>🎥 Video Detection Result</h2>
-
-
-            <div class="result-image-container">
-
-                <video
-                    id="resultVideo"
-                    controls
-                    style="
-                        display: none;
-                        width: 100%;
-                        max-height: 650px;
-                    "
-                >
-                </video>
-
-            </div>
-
-
-            <div
-                id="videoResultInfo"
-                class="result-info"
-            >
-            </div>
-
-        </section>
-
-
-        <!-- ================= ERROR ================= -->
-
-        <div
-            id="errorMessage"
-            class="error-message"
-            role="alert"
-        >
-        </div>
+        <p class="config-note" id="configNote"></p>
 
     </main>
 
-
-    <!-- ================= FOOTER ================= -->
-
     <footer>
-
-        <p>
-            Pothole Detection System | YOLOv8 + Flask
-        </p>
-
+        <p>Pothole Detection System · YOLO + FastAPI + Firebase</p>
     </footer>
 
+    <!-- Firebase (compat builds so plain JS pages can use them directly) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
-    <!-- ================= JAVASCRIPT ================= -->
+    <script src="js/common.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const authMessage = document.getElementById("authMessage");
+        const loginForm = document.getElementById("loginForm");
+        const registerForm = document.getElementById("registerForm");
+        const tabLogin = document.getElementById("tabLogin");
+        const tabRegister = document.getElementById("tabRegister");
 
-    <script src="script.js"></script>
+        function showMsg(text, isError = true) {
+            authMessage.style.display = "block";
+            authMessage.className = isError ? "error-message" : "success-note";
+            authMessage.textContent = text;
+        }
+
+        tabLogin.addEventListener("click", () => {
+            tabLogin.classList.add("active"); tabRegister.classList.remove("active");
+            loginForm.style.display = "block"; registerForm.style.display = "none";
+        });
+        tabRegister.addEventListener("click", () => {
+            tabRegister.classList.add("active"); tabLogin.classList.remove("active");
+            registerForm.style.display = "block"; loginForm.style.display = "none";
+        });
+
+        async function redirectByRole(user) {
+            const role = await getUserRole(user.uid);
+            window.location.href = role === "government_authority" ? "authority.html" : "user.html";
+        }
+
+        loginForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            authMessage.style.display = "none";
+            try {
+                const user = await loginUser(
+                    document.getElementById("loginEmail").value.trim(),
+                    document.getElementById("loginPassword").value);
+                showMsg("Signed in. Redirecting...", false);
+                await redirectByRole(user);
+            } catch (err) { showMsg(err.message); }
+        });
+
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            authMessage.style.display = "none";
+            try {
+                const role = (document.querySelector('input[name="regRole"]:checked') || {}).value || "user";
+                const code = document.getElementById("regCode").value.trim() || null;
+                const user = await registerUser(
+                    document.getElementById("regEmail").value.trim(),
+                    document.getElementById("regPassword").value,
+                    document.getElementById("regName").value.trim(),
+                    role, code);
+                showMsg("Account created. Redirecting...", false);
+                await redirectByRole(user);
+            } catch (err) { showMsg(err.message); }
+        });
+
+        document.querySelectorAll('input[name="regRole"]').forEach(r =>
+            r.addEventListener("change", () => {
+                const isAuthority = document.querySelector('input[name="regRole"]:checked').value === "government_authority";
+                document.getElementById("authorityCodeField").style.display = isAuthority ? "block" : "none";
+            }));
+
+        document.getElementById("forgotBtn").addEventListener("click", async () => {
+            const email = document.getElementById("loginEmail").value.trim();
+            if (!email) { showMsg("Enter your email above first."); return; }
+            try {
+                await PDS.auth().sendPasswordResetEmail(email);
+                showMsg("Password reset email sent.", false);
+            } catch (err) { showMsg(err.message); }
+        });
+
+        (async () => {
+            await PDS.loadConfig();
+            const note = document.getElementById("configNote");
+            if (!PDS.firebaseEnabled()) {
+                note.textContent = "Firebase is not configured yet. Add the Firebase web config to backend/.env " +
+                    "(FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, etc.) and restart the backend to enable login.";
+                note.style.display = "block";
+            }
+            // Already signed in? Go straight to the right dashboard.
+            const auth = PDS.auth();
+            if (auth && auth.currentUser) redirectByRole(auth.currentUser);
+        })();
+    </script>
 
 </body>
 
